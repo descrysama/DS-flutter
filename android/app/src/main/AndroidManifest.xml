@@ -1,6 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Nécessaire pour appeler l'API REST -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
-        android:label="untitled"
+        android:label="Login App"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

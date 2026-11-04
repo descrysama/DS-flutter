@@ -1,62 +1,57 @@
 // lib/screens/profile_screen.dart
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../providers/auth_provider.dart';
+import '../widgets/profile_info_tile.dart';
+import 'login_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
-  final String email;
-  final String firstName;
-  final String lastName;
-  final String role;
+  const ProfileScreen({super.key});
 
-  const ProfileScreen({
-    Key? key,
-    required this.email,
-    required this.firstName,
-    required this.lastName,
-    required this.role,
-  }) : super(key: key);
+  // Déconnexion : suppression du token puis retour à l'écran de connexion
+  Future<void> _logout(BuildContext context) async {
+    await context.read<AuthProvider>().logout();
+    if (!context.mounted) return;
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    final user = context.watch<AuthProvider>().user;
+
+    // Pendant la déconnexion, l'utilisateur peut être null un court instant
+    if (user == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profil de l\'Utilisateur'),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () {
-              // Action de déconnexion
-              Navigator.pop(context);
-            },
+            onPressed: () => _logout(context),
           ),
         ],
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          children: <Widget>[
+          children: [
             // Affichage des informations du profil
-            ListTile(
-              leading: const Icon(Icons.person),
-              title: const Text('Nom'),
-              subtitle: Text('$firstName $lastName'),
-            ),
-            ListTile(
-              leading: const Icon(Icons.email),
-              title: const Text('Email'),
-              subtitle: Text(email),
-            ),
-            ListTile(
-              leading: const Icon(Icons.security),
-              title: const Text('Rôle'),
-              subtitle: Text(role),
-            ),
+            ProfileInfoTile(icon: Icons.person, label: 'Nom', value: user.fullName),
+            ProfileInfoTile(icon: Icons.email, label: 'Email', value: user.email),
+            ProfileInfoTile(icon: Icons.security, label: 'Rôle', value: user.roleLabel),
             const SizedBox(height: 24.0),
             ElevatedButton(
-              onPressed: () {
-                // Déconnexion en retournant à l'écran de connexion
-                Navigator.pop(context);
-              },
+              onPressed: () => _logout(context),
               child: const Text('Se déconnecter'),
             ),
           ],
