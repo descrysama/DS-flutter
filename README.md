@@ -15,6 +15,7 @@ L'API vérifie les mots de passe hachés avec **bcrypt**, renvoie le profil en J
 **API (Option A — API personnelle, NestJS)**
 - Architecture NestJS en modules : `UsersModule`, `AuthModule` (contrôleur, service, DTO, guard)
 - `POST /login` (alias `/login.php`) : accepte `email` et `password` en form-urlencoded ou JSON
+- Base de données **SQLite** avec **TypeORM** (table `users`, remplie automatiquement avec les comptes de test)
 - Mots de passe **hachés et salés avec bcrypt** (coût 12), jamais stockés en clair
 - Validation des entrées avec un DTO `class-validator` (format de l'email, longueurs, champs inconnus refusés, JSON invalide)
 - Toutes les erreurs au même format `{ status, message }` (filtre d'exceptions global)
@@ -60,11 +61,12 @@ login_app_plus/
     │   │   └── guards/jwt-auth.guard.ts
     │   ├── users/
     │   │   ├── users.module.ts
-    │   │   ├── users.service.ts
-    │   │   ├── user.entity.ts
-    │   │   └── data/users.json       # Utilisateurs (mots de passe hachés)
+    │   │   ├── users.service.ts      # Accès à la table users (TypeORM)
+    │   │   ├── users.seeder.ts       # Crée les comptes de test si la base est vide
+    │   │   └── user.entity.ts        # Table users
     │   └── common/filters/http-exception.filter.ts
-    ├── scripts/hash-password.ts      # Génère un hachage bcrypt
+    ├── scripts/create-user.ts        # Ajoute un utilisateur en base
+    ├── data/database.sqlite          # Base SQLite (créée au démarrage, non versionnée)
     └── test/auth.e2e-spec.ts
 ```
 
@@ -101,7 +103,28 @@ Test manuel :
 curl -X POST http://localhost:3000/login -d email=jean@example.com -d password=userpass
 ```
 
-Ajouter un utilisateur : générer le hachage avec `npm run hash -- "motDePasse"` puis l'ajouter dans `src/users/data/users.json`.
+### Base de données
+
+Les utilisateurs sont stockés dans une base **SQLite** (`api/data/database.sqlite`), gérée avec **TypeORM**.
+Le fichier et la table `users` sont créés automatiquement au premier démarrage, avec les comptes de test ci-dessus.
+Le chemin peut être changé avec la variable `DATABASE_PATH`.
+
+| Colonne      | Type    | Description                          |
+|--------------|---------|--------------------------------------|
+| id           | integer | Clé primaire auto-incrémentée        |
+| firstName    | text    | Prénom                               |
+| lastName     | text    | Nom                                  |
+| email        | text    | Email (unique)                       |
+| role         | integer | 1 = administrateur, 2 = utilisateur  |
+| passwordHash | text    | Hachage bcrypt du mot de passe       |
+
+Ajouter un utilisateur (le mot de passe est haché automatiquement) :
+
+```bash
+npm run user:create -- lea@example.com motdepasse1 Léa Bernard 2
+```
+
+Pour repartir d'une base vide : supprimer `api/data/database.sqlite` et redémarrer l'API.
 
 ### Contrat de l'API
 

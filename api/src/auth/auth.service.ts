@@ -21,7 +21,7 @@ export class AuthService {
 
   /** Vérifie les identifiants. Retourne l'utilisateur (sans hachage) ou null. */
   async validateUser(email: string, password: string): Promise<PublicUser | null> {
-    const user = this.usersService.findByEmail(email);
+    const user = await this.usersService.findByEmail(email);
     const isValid = await bcrypt.compare(password, user?.passwordHash ?? this.dummyHash);
 
     return user && isValid ? this.usersService.toPublic(user) : null;
@@ -34,8 +34,8 @@ export class AuthService {
   }
 
   /** Profil associé au token (utilisé par GET /me). */
-  getProfile(userId: number): PublicUser | null {
-    const user = this.usersService.findById(userId);
+  async getProfile(userId: number): Promise<PublicUser | null> {
+    const user = await this.usersService.findById(userId);
     return user ? this.usersService.toPublic(user) : null;
   }
 }

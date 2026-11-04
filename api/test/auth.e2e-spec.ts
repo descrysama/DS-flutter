@@ -2,12 +2,14 @@
 // Tests de bout en bout de l'API (npm test).
 
 process.env.NODE_ENV = 'test';
+process.env.DATABASE_PATH = ':memory:'; // base SQLite temporaire, recréée à chaque lancement
 
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { setupApp } from '../src/setup-app';
+import { UsersService } from '../src/users/users.service';
 
 describe('API d\'authentification (e2e)', () => {
   let app: NestExpressApplication;
@@ -92,6 +94,20 @@ describe('API d\'authentification (e2e)', () => {
       .set('Authorization', 'Bearer faux')
       .expect(401);
     expect(ko.body).toEqual({ status: 401, message: 'Unauthorized' });
+  });
+
+  it('un utilisateur ajouté en base peut se connecter', async () => {
+    const created = await app.get(UsersService).create({
+      firstName: 'Paul',
+      lastName: 'Durand',
+      email: 'Paul@Example.com',
+      password: 'secret123',
+    });
+    expect(created).not.toHaveProperty('passwordHash');
+
+    const res = await login({ email: 'paul@example.com', password: 'secret123' }).expect(200);
+    expect(res.body.firstName).toBe('Paul');
+    expect(res.body.role).toBe(2);
   });
 
   it('route inconnue : 404', async () => {

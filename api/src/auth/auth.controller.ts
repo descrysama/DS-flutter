@@ -55,8 +55,8 @@ export class AuthController {
   /** GET /me : profil de l'utilisateur connecté (route protégée par token). */
   @Get('me')
   @UseGuards(JwtAuthGuard)
-  me(@Req() req: AuthenticatedRequest) {
-    const user = this.authService.getProfile(req.user.sub);
+  async me(@Req() req: AuthenticatedRequest) {
+    const user = await this.authService.getProfile(req.user.sub);
     if (!user) throw new UnauthorizedException();
 
     return { status: 200, message: 'Success', ...user };
