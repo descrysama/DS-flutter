@@ -10,7 +10,7 @@ L'API vérifie les mots de passe hachés avec **bcrypt**, renvoie le profil en J
 - Affichage du profil connecté (nom, email, rôle, identifiant)
 - Token stocké avec `flutter_secure_storage` et **session restaurée automatiquement** au démarrage (`GET /me`)
 - Gestion d'état avec **Provider** (`AuthProvider`)
-- UX/UI : `CircularProgressIndicator` pendant la connexion, `SingleChildScrollView` (clavier ouvert, mode paysage), messages d'erreur en `SnackBar`, thème Material 3
+- UX/UI : `CircularProgressIndicator` dans le bouton pendant la connexion (transition `AnimatedSwitcher`), `SingleChildScrollView` + largeur max (clavier ouvert, paysage, tablette, web), messages d'erreur en `SnackBar`, thème personnalisé (couleur, champs et boutons arrondis), logo en image (`assets/images/logo.png`)
 
 **API (Option A — API personnelle, NestJS)**
 - Architecture NestJS en modules : `UsersModule`, `AuthModule` (contrôleur, service, DTO, guard)
@@ -44,6 +44,7 @@ login_app_plus/
 │   │   ├── login_screen.dart     # Formulaire de connexion
 │   │   └── profile_screen.dart   # Profil de l'utilisateur
 │   └── widgets/profile_info_tile.dart  # Ligne d'info du profil
+├── assets/images/logo.png        # Logo de l'application
 ├── test/widget_test.dart         # Tests (modèle, service, provider, écran)
 └── api/                              # API REST NestJS
     ├── src/

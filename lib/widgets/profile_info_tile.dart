@@ -18,9 +18,12 @@ class ProfileInfoTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Icon(icon),
-      title: Text(label),
-      subtitle: Text(value),
+      leading: Icon(icon, color: Theme.of(context).colorScheme.primary),
+      title: Text(label, style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+      subtitle: Text(
+        value,
+        style: const TextStyle(fontSize: 16, color: Colors.black87),
+      ),
     );
   }
 }

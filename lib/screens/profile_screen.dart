@@ -24,6 +24,7 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = context.watch<AuthProvider>().user;
+    final primaryColor = Theme.of(context).colorScheme.primary;
 
     // Pendant la déconnexion, l'utilisateur peut être null un court instant
     if (user == null) {
@@ -32,29 +33,93 @@ class ProfileScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profil de l\'Utilisateur'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text('Mon profil'),
         actions: [
           IconButton(
+            tooltip: 'Se déconnecter',
             icon: const Icon(Icons.logout),
             onPressed: () => _logout(context),
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            // Affichage des informations du profil
-            ProfileInfoTile(icon: Icons.person, label: 'Nom', value: user.fullName),
-            ProfileInfoTile(icon: Icons.email, label: 'Email', value: user.email),
-            ProfileInfoTile(icon: Icons.security, label: 'Rôle', value: user.roleLabel),
-            const SizedBox(height: 24.0),
-            ElevatedButton(
-              onPressed: () => _logout(context),
-              child: const Text('Se déconnecter'),
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24.0),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 400),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Avatar avec les initiales de l'utilisateur
+                CircleAvatar(
+                  radius: 44,
+                  backgroundColor: primaryColor,
+                  child: Text(
+                    user.initials,
+                    style: const TextStyle(
+                      fontSize: 28,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+                Text(
+                  user.fullName,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.titleLarge
+                      ?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 4.0),
+                Text(
+                  user.roleLabel,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey.shade600),
+                ),
+                const SizedBox(height: 24.0),
+                // Informations du profil
+                Card(
+                  elevation: 0,
+                  color: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    side: BorderSide(color: Colors.grey.shade200),
+                  ),
+                  child: Column(
+                    children: [
+                      ProfileInfoTile(
+                        icon: Icons.person_outline,
+                        label: 'Nom',
+                        value: user.fullName,
+                      ),
+                      ProfileInfoTile(
+                        icon: Icons.mail_outline,
+                        label: 'Email',
+                        value: user.email,
+                      ),
+                      ProfileInfoTile(
+                        icon: Icons.verified_user_outlined,
+                        label: 'Rôle',
+                        value: user.roleLabel,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24.0),
+                OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  icon: const Icon(Icons.logout),
+                  label: const Text('Se déconnecter'),
+                  onPressed: () => _logout(context),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
