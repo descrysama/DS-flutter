@@ -47,8 +47,6 @@ class User {
     }
   }
 
-  bool get isAdmin => role == 1;
-
   // Certaines API renvoient les nombres sous forme de chaînes : on accepte les deux.
   static int _toInt(dynamic value) {
     if (value is int) return value;

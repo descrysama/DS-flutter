@@ -18,15 +18,11 @@ class AuthProvider extends ChangeNotifier {
 
   User? _user;
   bool _isLoading = false;
-  bool _isRestoring = true;
   String? _errorMessage;
 
   User? get user => _user;
   bool get isAuthenticated => _user != null;
   bool get isLoading => _isLoading;
-
-  /// Vrai pendant la vérification d'une session existante au démarrage.
-  bool get isRestoring => _isRestoring;
   String? get errorMessage => _errorMessage;
 
   /// Au démarrage : si un token valide est stocké, on restaure la session.
@@ -36,7 +32,6 @@ class AuthProvider extends ChangeNotifier {
       _user = await _authService.fetchProfile(token);
       if (_user == null) await _tokenStorage.deleteToken();
     }
-    _isRestoring = false;
     notifyListeners();
   }
 
@@ -66,12 +61,6 @@ class AuthProvider extends ChangeNotifier {
   Future<void> logout() async {
     await _tokenStorage.deleteToken();
     _user = null;
-    _errorMessage = null;
-    notifyListeners();
-  }
-
-  void clearError() {
-    if (_errorMessage == null) return;
     _errorMessage = null;
     notifyListeners();
   }
